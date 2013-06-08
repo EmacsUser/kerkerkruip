@@ -1,8 +1,10 @@
 {
-	"name": "kerkerkruip",
-	"version": "0.0.1",
-	"dependencies": {
-		"express": "3.2.x",
-		"request": "2.21.x"
-	}
+  "name": "kerkerkruip",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "~3.2.x",
+    "gowiththeflow": "~1.0.0",
+    "mkdirp": "~0.3.5",
+    "request": "~2.21.0"
+  }
 }
