@@ -12,26 +12,30 @@ https://github.com/i7/kerkerkruip
 var exec = require( 'child_process' ).execFile;
 var flow = require( 'gowiththeflow' );
 var fs = require( 'fs' );
+var mkdirp = require( 'mkdirp' );
+var path = require( 'path' );
 var request = require( 'request' );
 
 var util = require( './util.js' );
 
+request = request.defaults( { headers: { 'User-Agent': 'Kerkerkruip/1.0' } } );
+
 // Use the API to get the latest commit
-exports.update = function( callback )
+var update = exports.update = function( callback )
 {
-	request( {
-		url: 'https://api.github.com/repos/i7/kerkerkruip/commits',
-		headers: { 'User-Agent': 'Kerkerkruip/1.0' },
-	}, function( error, response, body )
+	request( 'https://api.github.com/repos/i7/kerkerkruip/commits', function( error, response, body )
 	{
 		var json = JSON.parse( body );
 		var oldlast = util.data( 'last' );
-		var last = json[0].sha.substr( 0, 7 );
-		util.data( 'last', last );
+		var last = util.data( 'last', json[0].sha.substr( 0, 7 ) );
 		
-		if ( oldlast != last )
+		if ( /*oldlast != last*/ 1 )
 		{
-			update_archive( callback );
+			// We have a new commit, so recompile!
+			flow()
+			.par( update_archive )
+			.par( update_extensions )
+			.seq( callback );
 		}
 		else
 		{
@@ -41,10 +45,10 @@ exports.update = function( callback )
 }
 
 // Update archive
-function update_archive( callback )
+var update_archive = function( callback )
 {
 	console.log( 'Updating source code archive' );
-	fs.exists( 'src/README.md', function( exists )
+	fs.exists( 'src/.git', function( exists )
 	{
 		if ( exists )
 		{
@@ -56,3 +60,34 @@ function update_archive( callback )
 		}
 	});
 }
+
+// Update other extensions
+var update_extensions = function( callback )
+{
+	// Get the list
+	request( 'https://raw.github.com/i7/kerkerkruip/master/.extensions', function( error, response, body )
+	{
+		var f = flow();
+		var files = body.split( /\s+/ );
+		for ( var i in files )
+		{
+			f.par( (function( i )
+			{
+				return function( next ) { download_extension( files[i], next ); };
+			})( i ) );
+		}
+	});
+};
+
+var download_extension = function( url, callback )
+{
+	request( url, function( error, response, body )
+	{
+		var info = /^(?:Version \S+ of )?([\w ]+)(?: \(for Glulx only\))? by ([\w ]+) begins here/i.exec( body );
+		var dest = './inform/' + info[2] + '/' + info[1] + '.i7x';
+		mkdirp( path.dirname( dest ), function()
+		{
+			fs.writeFile( dest, body, callback );
+		});
+	});
+};

@@ -53,12 +53,12 @@ flow()
 	inform7.install( next );
 })*/
 
-.seq( function( next )
+.par( function( next )
 {
 	update.update( next );
 })
 
-.seq( function()
+.par( function()
 {
 	var port = process.env.PORT || 3000;
 	app.listen( port );

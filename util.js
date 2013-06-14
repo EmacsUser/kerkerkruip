@@ -33,7 +33,7 @@ var data = exports.data = function( key, value )
 	{
 		_data[key] = value;
 		fs.writeFile( DATA_FILE, JSON.stringify( _data ), function(){} );
-		return;
+		return value;
 	}
 	return _data[key];
 };
