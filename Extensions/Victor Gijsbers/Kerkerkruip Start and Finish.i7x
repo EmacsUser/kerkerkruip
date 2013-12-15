@@ -28,6 +28,30 @@ Last after showing the title screen:
 
 
 
+Section - Detecting whether or not the Gargoyle config file has been applied
+
+[ We can detect whether or not the Gargoyle config file has been applied by checking whether one of the text colours has been changed. Warning, user style 2 will be pretty ugly if it has! ]
+
+The Gargoyle config file was used is a truth state variable.
+
+First before showing the title screen (this is the detect whether the config file has been applied rule):
+	detect the gargoyle config file;
+
+To detect the gargoyle config file:
+	(- DetectGargoyleConfigFile(); -).
+
+Include (-
+[ DetectGargoyleConfigFile	res;
+	res = glk_style_measure( gg_mainwin, style_User2, stylehint_TextColor, gg_arguments );
+	if ( res && gg_arguments-->0 == $F400A1 )
+	{
+		(+ the Gargoyle config file was used +) = 1;
+	}
+];
+-).
+
+
+
 Section - The difficulty level
 
 The difficulty is a number that varies.
@@ -137,7 +161,7 @@ Figure opening figure is the file "smallercover.jpg".
 Showing the text title screen is a truth state variable.
 
 Rule for showing the title screen (this is the text title screen rule):
-	close the status window;[in case we've come to the menu with it open]
+	shut down the status-window;[in case we've come to the menu with it open]
 	display the text menu;
 	while 1 is 1:
 		now showing the text title screen is true;
@@ -317,12 +341,15 @@ Table of Options Menu
 title	order	rule
 "[bold type]Interface options"	1	--
 "Information panels: [bold type][if data value 7 is 1]Off[otherwise]On[end if]"	2	the toggle info panels rule
-"Clickable menus: [bold type][if data value 8 is 1]On[otherwise]Off[end if][unless glulx hyperlinks are supported][italic type] (note: not supported in this interpreter)[roman type][end if]"	3	the toggle menu hyperlinks rule
+"[hyperlinks options]"	3	the toggle menu hyperlinks rule
 ""	20	--
 "[bold type]Reset"	21	--
 "[if difficulty is 0 and data value 1 is 0 and data value 3 is 0 or data value 4 is 0][italic type](Reset the number of victories)[otherwise]Reset the number of victories"	22	the resetting rule
 "[if the Table of Held Achievements is empty][italic type](Reset achievements)[otherwise]Reset achievements"	23	the achievement resetting rule
 "[if data value 4 > 99][italic type](Unlock everything)[otherwise]Unlock everything"	24	the unlock everything rule
+
+To say hyperlinks options:
+	say "Clickable menus: [bold type][if data value 8 is 1]On[otherwise]Off[end if][italic type][unless glulx hyperlinks are supported] (note: not supported in this interpreter)[otherwise if data value 8 is -1 and enable menu hyperlinks is true] (note: will take affect once you leave this menu)[end if]";
 
 Before showing the title screen:
 	sort the Table of Options Menu in (order) order;
@@ -346,20 +373,38 @@ This is the toggle info panels rule:
 	otherwise:
 		set data value 7 to 0;
 
+[ Menu hyperlinks: try to detect if we can use them, but also allow the user to change the option ]
+Before showing the title screen (this is the enable menu hyperlinks rule):
+	if glulx hyperlinks are supported:
+		if data value 8 is 0:
+			if the Gargoyle config file was used is true:
+				set data value 8 to 1;
+			otherwise:
+				set data value 8 to -1;
+		if data value 8 is 1:
+			now enable menu hyperlinks is true;
+		otherwise:
+			now enable menu hyperlinks is false;
+	otherwise:
+		now enable menu hyperlinks is false;
+
+[ If we turn on hyperlinks, turn them on immediately. If turning them off, wait until we leave the menu, which the next rule handles ]
 This is the toggle menu hyperlinks rule:
-	if data value 8 is 0:
+	if data value 8 is 1:
+		set data value 8 to -1;
+	otherwise:
 		set data value 8 to 1;
 		if glulx hyperlinks are supported:
 			now enable menu hyperlinks is true;
-	otherwise:
-		set data value 8 to 0;
-		now enable menu hyperlinks is false;
 
-Before displaying:
-	if glulx hyperlinks are supported and data value 8 is 1:
-		now enable menu hyperlinks is true;
-	otherwise:
-		now enable menu hyperlinks is false;
+A first glulx input handling rule for a hyperlink-event while displaying (this is the update the enable menu hyperlinks option rule):
+	if the chosen menu option for the link number of the selected hyperlink is -1:
+		if the submenu in row menu depth of the Table of Menu history is the Table of Options Menu:
+			if data value 8 is -1:
+				now enable menu hyperlinks is false;
+				convert the hyperlink code to the character code;
+				request hyperlink input again;
+				replace player input;
 
 
 

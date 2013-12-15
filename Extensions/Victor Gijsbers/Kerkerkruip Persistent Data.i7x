@@ -35,7 +35,7 @@ Table of Victories
 Victories	Level	Best-Level
 0	0	0
 
-Before showing the title screen (this is the load the file of data storage rule):
+First before showing the title screen (this is the load the file of data storage rule):
 	if File of Data Storage exists:
 		read File Of Data Storage into the Table of Data Storage;
 	otherwise if File of Legacy Storage exists:
