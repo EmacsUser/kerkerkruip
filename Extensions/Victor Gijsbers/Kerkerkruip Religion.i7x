@@ -464,7 +464,7 @@ Intervention possible for someone who worships Nomos:
 	if the Nomos counter is 0, rule succeeds;
 	rule fails.
 
-The intervention rarity of Nomos is 40.
+The intervention rarity of Nomos is 30.
 
 The Nomos attacker is a person that varies. The Nomos attacker is yourself.
 The Nomos counter is a number that varies. The Nomos counter is 0.
@@ -566,13 +566,16 @@ To decide which number is the Nomos piety:
 
 To decide which number is Nomos piety of (guy - a person):
 	Let f be the favour of guy with Nomos;
-	if f > 8:
+	if f is 0:
+		decide on 0;
+	decide on (f / 3) + 2;
+	[if f > 8:
 		decide on 4;
 	if f > 5:
 		decide on 3;
 	if f > 0:
 		decide on 2;
-	decide on 0.
+	decide on 0.]
 	
 Chapter - Sul
 
@@ -883,7 +886,7 @@ Intervention possible for someone (called guy) who worships Herm:
 	unless the location of the global attacker is the location of the global defender, rule fails;
 	rule succeeds.
 
-The intervention rarity of Herm is 20;
+The intervention rarity of Herm is 30;
 
 Before an actor hitting someone who worships Herm:
 	unless the global defender gets intervention, make no decision;

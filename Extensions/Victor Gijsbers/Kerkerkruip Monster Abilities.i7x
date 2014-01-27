@@ -498,7 +498,7 @@ This is the dreadful presence effect rule:
 			let n be dreadful presence of guy;
 			if n > 0:
 				let m be 10 times n;
-				increase m by 5;
+				increase m by 10;
 				decrease m by final mind of main actor;
 				decrease m by level of main actor;
 				if m > 40:
