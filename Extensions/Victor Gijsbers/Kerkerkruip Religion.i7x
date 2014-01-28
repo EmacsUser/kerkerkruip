@@ -104,6 +104,7 @@ To decide whether (guy - a person) gets intervention:
 	if the guy's chances < 1:
 		now the guy's chances is 1;
 	Let N be intervention rarity of the divinity;
+	say "intervention chance of [the guy] is [the guy's chances] in [N].";
 	Decide on whether or not a random chance of the guy's chances in (intervention rarity of the divinity) succeeds.
 
 Every turn when the combat status is not peace (this is the spontaneous combat intervention rule):
@@ -492,15 +493,24 @@ An AI action selection rule for an at-Act person who is the Nomos attacker (this
 To deactivate Nomos bonus:
 	now Nomos bonus is false;
 		
+To initialize the Nomos counter for (supplicant - a person):
+	now the Nomos attacker is the supplicant;
+	Let the bonus be the favour of the supplicant with Nomos + the intervention bonus for the supplicant with Nomos;
+	now Nomos counter is 1;
+	repeat with N running from 1 to 6:
+		[treat the duration as a series of turns where Nomos has a chance to intervene]
+		Let P be (the bonus + the nomos counter  - 2) * the nomos counter;
+		if a random chance of P in 30 succeeds:
+			break;
+		increment the Nomos counter;
+
 To have (benefactor - Nomos) intervene on behalf of (supplicant - a person):
+	showme the nomos counter;
+	showme the nomos bonus;
 	if the Nomos counter > 0 or the Nomos bonus is true:
 		stop;
-	now the Nomos attacker is the supplicant;
-	now Nomos counter is a random number between 1 and 5;
-	if Nomos counter is 1 or Nomos counter is 2:
-		if a random chance of 1 in 2 succeeds:
-			increase Nomos counter by 1;
-	if the Nomos attacker is the player:
+	initialize the nomos counter for the supplicant;
+	if the supplicant is the player:
 		say "A deep voice inside your head speaks: 'You will attack [bold type][Nomos counter] turns[roman type] from now. The law will be with you.'";
 	otherwise:
 		say "The god of Law speaks out loud: '[bold type][Nomos attacker][roman type], attack in [bold type][Nomos counter] turns[roman type] and my strength will guide you!'";
